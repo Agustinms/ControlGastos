@@ -14,6 +14,7 @@ root  = Tk()
 root.title("Control de Gastos")
 root.geometry("572x380")
 root.resizable(False,False)
+root.iconbitmap("icono.ico")
 #cal = Calendar(root, selectmode = 'day')
 
 ###Base de datos###
