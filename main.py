@@ -1,4 +1,3 @@
-import os
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
@@ -9,28 +8,14 @@ import sqlite3
 
 
 
-
 ###Interfaz###
 
 root  = Tk()
 root.title("Control de Gastos")
-root.geometry("576x409")
+root.geometry("572x380")
 root.resizable(False,False)
-#root.iconbitmap("icono.ico")
+root.iconbitmap("icono.ico")
 #cal = Calendar(root, selectmode = 'day')
-
-
-notebook = ttk.Notebook(root)
-notebook.pack()
-
-frame1 = Frame(notebook, width=572, height=380)
-frame2 = Frame(notebook, width=572, height=380)
-
-frame1.pack(fill="both", expand=1)
-frame2.pack(fill="both",expand=1)
-
-notebook.add(frame1, text="Entrada")
-notebook.add(frame2, text="Gráficos")
 
 ###Base de datos###
 
@@ -43,7 +28,7 @@ tipo = StringVar(None,"Gasto")
 
 
 def conexion_base():
-    mi_conexion = sqlite3.connect('db.db')
+    mi_conexion = sqlite3.connect("db.db")
     mi_cursor = mi_conexion.cursor()
 
     try:
@@ -62,12 +47,11 @@ def conexion_base():
 
 
 def eliminarBBDD():
-    mi_conexion = sqlite3.connect('db.db')
+    mi_conexion = sqlite3.connect("db.db")
     mi_cursor = mi_conexion.cursor()
     if messagebox.askyesno("ADVERTENCIA", message="Los datos se perderán permanentemente. ¿Desea continuar?"):
         mi_cursor.execute("DROP TABLE gastos")
         messagebox.showinfo(message="Base eliminada correctamente", title="ADVERTENCIA")
-    mi_cursor.close()
     mostrar()
 
 def salirAplicacion():
@@ -88,7 +72,7 @@ def limpiarCampos():
 
 
 def crear():
-    mi_conexion = sqlite3.connect('db.db')
+    mi_conexion = sqlite3.connect("db.db")
     mi_cursor = mi_conexion.cursor()
 
     try:
@@ -97,7 +81,6 @@ def crear():
         mi_conexion.commit()
     except:
         messagebox.showwarning("ADVERTENCIA", "Error al crear el registro. Verificar conexión con la base")
-    mi_cursor.close()
     limpiarCampos()
     mostrar()
 
@@ -113,18 +96,17 @@ def mostrar():
             tree.insert("", 0, text=row[0], values=(row[1], row[2], row[3], row[4], row[5]))
     except:
         pass 
-    mi_cursor.close()
 ###TABLA###
 
-sb = Scrollbar(frame1)  
+sb = Scrollbar(root)  
 
-sb.pack(side=RIGHT, fill=Y, pady=(149,0))
+sb.pack(side=RIGHT, fill=Y, pady=(140,0))
 sb.config()
 
 style=ttk.Style()
 style.theme_use('clam')
 
-tree = ttk.Treeview(frame1, height=11, columns=('#0', '#1', '#2', '#3', '#4'), yscrollcommand = sb.set)
+tree = ttk.Treeview(height=11, columns=('#0', '#1', '#2', '#3', '#4'), yscrollcommand = sb.set)
 
 tree.column('#0',anchor=CENTER, stretch=NO, width=50)
 tree.heading('#0', text="ID") 
@@ -139,27 +121,24 @@ tree.heading('#4', text="Categoría")
 tree.column('#5',anchor=CENTER, stretch=NO, width=100)
 tree.heading('#5', text="Tipo")
 
-tree.place(x=1, y=150)
+tree.place(x=1, y=127)
 sb.config( command = tree.yview )  
 
 def seleccionarUsandoClick(event):
-    try:
-        item=tree.identify('item', event.x, event.y)
-        id.set(tree.item(item,"text"))
-        fecha.set(tree.item(item,"values")[0])
-        gasto.set(tree.item(item,"values")[1])
-        importe.set(tree.item(item,"values")[2])
-        categoria.set(tree.item(item,"values")[3])
-        tipo.set(tree.item(item,"values")[4])
-    except: 
-        pass
+    item=tree.identify('item', event.x, event.y)
+    id.set(tree.item(item,"text"))
+    fecha.set(tree.item(item,"values")[0])
+    gasto.set(tree.item(item,"values")[1])
+    importe.set(tree.item(item,"values")[2])
+    categoria.set(tree.item(item,"values")[3])
+    tipo.set(tree.item(item,"values")[4])
 
-tree.bind("<1>", seleccionarUsandoClick)
+tree.bind("<Double-1>", seleccionarUsandoClick)
 
 
 
 def actualizar():
-    mi_conexion = sqlite3.connect('db.db')
+    mi_conexion = sqlite3.connect("db.db")
     mi_cursor = mi_conexion.cursor()
 
     try:
@@ -168,13 +147,12 @@ def actualizar():
         mi_conexion.commit()
     except:
         messagebox.showwarning("ADVERTENCIA", "Error al actualizar el registro.")
-    mi_cursor.close()
     limpiarCampos()
     mostrar()
 
 
 def borrar():
-    mi_conexion = sqlite3.connect('db.db')
+    mi_conexion = sqlite3.connect("db.db")
     mi_cursor = mi_conexion.cursor()
 
     try:
@@ -184,16 +162,9 @@ def borrar():
     except:
          messagebox.showwarning("ADVERTENCIA", "Error al borrar el registro.")
          print(id.get())
-    mi_cursor.close()
     limpiarCampos()
     mostrar()
-    
 
-def ejecutarReporte():
-
-    os.system("python ejecutarReporte.py")
-    
-    #root.withdraw()
 ####Calendario####
 
 def elegir_fecha(event):
@@ -225,24 +196,24 @@ menubasedat.add_command(label="Salir", command=salirAplicacion)
 
 menubar.add_cascade(label="Inicio", menu=menubasedat)
 
-e1 = Entry(frame1, textvariable=id)
+e1 = Entry(root, textvariable=id)
 
 
-l2 = Label(frame1, text="Fecha")
+l2 = Label(root, text="Fecha")
 l2.place(x=25, y=10)
-e2 = Entry(frame1, textvariable=fecha, width=50)
+e2 = Entry(root, textvariable=fecha, width=50)
 e2.place(x=75, y=10)
 #e2.insert(0, "dd/mm/yyyy")
 e2.bind("<1>", elegir_fecha)
 
-l3 = Label(frame1, text="Gasto")
+l3 = Label(root, text="Gasto")
 l3.place(x=215, y=10)
-e3 = Entry(frame1, textvariable=gasto, width=25)
+e3 = Entry(root, textvariable=gasto, width=25)
 e3.place(x=250, y=10)
 
-l4 = Label(frame1, text="Importe")
+l4 = Label(root, text="Importe")
 l4.place(x=25, y=50)
-e4 = Entry(frame1, textvariable=importe, width=20)
+e4 = Entry(root, textvariable=importe, width=20)
 e4.place(x=75, y=50)
 
 categorias = ["Comestibles", 
@@ -253,17 +224,17 @@ categorias = ["Comestibles",
               "Medicina",
               "Otros"]
 
-l5 = Label(frame1, text="Categoría")
+l5 = Label(root, text="Categoría")
 l5.place(x=195, y=50)
-e5 = ttk.Combobox(frame1, value=categorias, textvariable=categoria, state="readonly", width=25)
+e5 = ttk.Combobox(root, value=categorias, textvariable=categoria, state="readonly", width=25)
 e5.place(x=250, y=50)
 
 
-l6 = Label(frame1, text="Tipo")
+l6 = Label(root, text="Tipo")
 l6.place(x=25, y=90)
-e61 = Radiobutton(frame1, text="Ingreso", variable=tipo, value="Ingreso")
+e61 = Radiobutton(root, text="Ingreso", variable=tipo, value="Ingreso")
 e61.place(x=75, y=90)
-e62 = Radiobutton(frame1, text="Gasto", variable=tipo, value="Gasto")
+e62 = Radiobutton(root, text="Gasto", variable=tipo, value="Gasto")
 e62.place(x=150, y=90)
 # e6 = Entry(root, textvariable=tipo, width=25)
 # e6.place(x=75, y=90)
@@ -272,20 +243,15 @@ e62.place(x=150, y=90)
 
 root.config(menu=menubar)
 
-b1 = Button(frame1, text="Crear Registro",bg="green", fg="white", command=crear, width=15)
+b1 = Button(root, text="Crear Registro",bg="green", fg="white", command=crear, width=15)
 b1.place(x=435, y=10)
-b2 = Button(frame1, text="Modificar Registro", bg="blue", fg="white", command=actualizar,width=15)
+b2 = Button(root, text="Modificar Registro", bg="blue", fg="white", command=actualizar,width=15)
 b2.place(x=435, y=50)
-b3 = Button(frame1, text="Actualizar Lista", command=mostrar)
+b3 = Button(root, text="Actualizar Lista", command=mostrar)
 b3.place(x=280, y=85)
-b4 = Button(frame1, text="Eliminar Registro", bg="red", fg="white", command=borrar, width=15)
+b4 = Button(root, text="Eliminar Registro", bg="red", fg="white", command=borrar, width=15)
 b4.place(x=435, y=90)
-
-b5 = Button(frame1, text="Reporte", bg="red", fg="white", command=ejecutarReporte, width=15)
-b5.place(x=265, y=115)
 
 conexion_base()
 mostrar()
 root.mainloop()
-
-    
